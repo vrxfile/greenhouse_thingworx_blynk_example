@@ -14,7 +14,6 @@
 #include "U8glib.h"
 #include <BlynkSimpleEthernet.h>
 #include <ServoTimer2.h>
-//#include <Servo.h>
 
 // Датчики DS18B20
 #define DS18B20_1 8
@@ -101,9 +100,9 @@ int light_state_blynk = 0;
 int window_state_blynk = 0;
 
 // Параметры IoT сервера
-char iot_server[] = "cttit5402.cloud.thingworx.com";
-IPAddress iot_address(52, 87, 101, 142);
-char appKey[] = "92b0be1d-e8c3-4b40-86a7-d58865d23684";
+char iot_server[] = "jrskillsiot.cloud.thingworx.com";
+IPAddress iot_address(52, 203, 26, 63);
+char appKey[] = "cedebb42-898d-4c47-a94f-fabc402e0b8a";
 char thingName[] = "MGBot_Exhibition_Greenhouse";
 char serviceName[] = "MGBot_Exhibition_SetParams";
 
@@ -130,7 +129,7 @@ float sensorValues[sensorCount];
 long timer_iot_timeout = 0;
 
 // Размер приемного буффера
-#define BUFF_LENGTH 64
+#define BUFF_LENGTH 128
 
 // Приемный буфер
 char buff[BUFF_LENGTH] = "";
@@ -475,16 +474,19 @@ void sendDataIot()
       // Расшифровываем параметры
       StaticJsonBuffer<BUFF_LENGTH> jsonBuffer;
       JsonObject& json_array = jsonBuffer.parseObject(buff);
-      pump_state_ptc = json_array["pump_state"];
-      window_state_ptc = json_array["window_state"];
-      light_state_ptc = json_array["light_state"];
-      if (window_state_ptc)
+      if (json_array.success())
       {
-        window_state_ptc = 120;
-      }
-      else
-      {
-        window_state_ptc = 90;
+        pump_state_ptc = json_array["pump_state"];
+        window_state_ptc = json_array["window_state"];
+        light_state_ptc = json_array["light_state"];
+        if (window_state_ptc)
+        {
+          window_state_ptc = 120;
+        }
+        else
+        {
+          window_state_ptc = 90;
+        }
       }
       Serial.println("Pump state:   " + String(pump_state_ptc));
       Serial.println("Light state:  " + String(light_state_ptc));
